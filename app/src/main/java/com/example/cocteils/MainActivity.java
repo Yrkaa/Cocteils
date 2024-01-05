@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     //Создание переменных разметки
     ListView cocteilsList;
     TextView titleTv, noInternetTv;
+    ProgressBar progressBar;
 
 
     //Метод заполнения списка на основе данных json
@@ -108,6 +110,9 @@ public class MainActivity extends AppCompatActivity {
                         //Получение списка с коктейлями
                         JSONArray cocteils = jsonObject.getJSONArray("drinks");
 
+                        //Скрываем прогресс бар
+                        progressBar.setVisibility(View.INVISIBLE);
+
                         //Заполнение ListView названиями коктейлей и обработка нажатий на 1 коктейль
                         MainActivity.this.runOnUiThread(new Runnable() {
                             @Override
@@ -153,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
         cocteilsList = findViewById(R.id.cocteils_list);
         titleTv = findViewById(R.id.title_tv);
         noInternetTv = findViewById(R.id.no_internet_tv);
+        progressBar = findViewById(R.id.progressBar);
 
         //Запуск потока для получения данных с сервера
         loadDataFromApi.start();
