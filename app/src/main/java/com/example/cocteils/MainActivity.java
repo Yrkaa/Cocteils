@@ -1,18 +1,15 @@
 package com.example.cocteils;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,32 +21,19 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
     //Создание переменных разметки
     ListView cocteilsList;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        //Инициализация переменных разметки
-        cocteilsList = findViewById(R.id.cocteils_list);
-
-        //Запуск потока для получения данных с сервера
-        loadDataFromApi.start();
-    }
+    TextView titleTv, noInternetTv;
 
 
     //Поток для получения данных с сервера
     Thread loadDataFromApi = new Thread(new Runnable() {
+
         @Override
         public void run() {
-
 
             //Начало работы потока
             //Проверка наличия интернета
@@ -58,6 +42,9 @@ public class MainActivity extends AppCompatActivity {
             if (cm != null) {
                 activeNetwork = cm.getActiveNetworkInfo();
             }
+
+
+            //Получение данных с api при наличии интернета
             if (activeNetwork != null && activeNetwork.isConnectedOrConnecting()) {
 
                 //Подключение к серверу
@@ -82,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
                                 ArrayList<String> cocteilsMassive = new ArrayList<>();
 
                                 //Заполнение массива для названий коктейлей
-                                for(int i = 0; i < cocteils.length(); i++){
+                                for (int i = 0; i < cocteils.length(); i++) {
                                     try {
                                         JSONObject cocteil = cocteils.getJSONObject(i);
                                         cocteilsMassive.add(cocteil.getString("strDrink"));
@@ -103,8 +90,35 @@ public class MainActivity extends AppCompatActivity {
                     throw new RuntimeException(e);
                 }
             }
+
+
+            //Обработка отсутствия интернета
+            else {
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        titleTv.setVisibility(View.INVISIBLE);
+                        cocteilsList.setVisibility(View.INVISIBLE);
+                        noInternetTv.setVisibility(View.VISIBLE);
+                    }
+                });
+            }
             //Конец работы потока
 
         }
     });
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        //Инициализация переменных разметки
+        cocteilsList = findViewById(R.id.cocteils_list);
+        titleTv = findViewById(R.id.title_tv);
+        noInternetTv = findViewById(R.id.no_internet_tv);
+
+        //Запуск потока для получения данных с сервера
+        loadDataFromApi.start();
+    }
 }
