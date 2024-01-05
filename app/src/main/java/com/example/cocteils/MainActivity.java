@@ -1,10 +1,12 @@
 package com.example.cocteils;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -50,6 +52,30 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    //Метод для обработки нажатия на 1 коктейль
+    private void onCocteilClick(JSONArray cocteils){
+        cocteilsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                try {
+                    String name = ((TextView) view).getText().toString();
+                    String imgUrl = cocteils.getJSONObject((int) l).getString("strDrinkThumb");
+                    String id = cocteils.getJSONObject((int) l).getString("idDrink");
+
+                    Intent toCocteilPage = new Intent(MainActivity.this, CocteilPage.class);
+
+                    toCocteilPage.putExtra("name", name);
+                    toCocteilPage.putExtra("imgUrl", imgUrl);
+                    toCocteilPage.putExtra("id", id);
+
+                    startActivity(toCocteilPage);
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+    }
+
     //Поток для получения данных с сервера, заполнения списка коктейлей, предоставления более подробной информации о каждом из них
     Thread loadDataFromApi = new Thread(new Runnable() {
 
@@ -82,13 +108,15 @@ public class MainActivity extends AppCompatActivity {
                         //Получение списка с коктейлями
                         JSONArray cocteils = jsonObject.getJSONArray("drinks");
 
-                        //Заполнение ListView названиями коктейлей
+                        //Заполнение ListView названиями коктейлей и обработка нажатий на 1 коктейль
                         MainActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                //Заполнение списка
+                                //Заполнение списка коктейлей
                                 loadCocteilsList(cocteils);
 
+                                //Обработка на нажатие каждого из них
+                                onCocteilClick(cocteils);
                             }
                         });
                     }
