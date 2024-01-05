@@ -6,6 +6,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,7 +31,6 @@ public class MainActivity extends AppCompatActivity {
 
     //Создание переменных разметки
     ListView cocteilsList;
-    TextView title;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +39,6 @@ public class MainActivity extends AppCompatActivity {
 
         //Инициализация переменных разметки
         cocteilsList = findViewById(R.id.cocteils_list);
-        title = findViewById(R.id.title);
 
         //Запуск потока для получения данных с сервера
         loadDataFromApi.start();
@@ -79,7 +78,22 @@ public class MainActivity extends AppCompatActivity {
                         MainActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                //Инициализация массива для названий коктейлей
+                                ArrayList<String> cocteilsMassive = new ArrayList<>();
 
+                                //Заполнение массива для названий коктейлей
+                                for(int i = 0; i < cocteils.length(); i++){
+                                    try {
+                                        JSONObject cocteil = cocteils.getJSONObject(i);
+                                        cocteilsMassive.add(cocteil.getString("strDrink"));
+                                    } catch (JSONException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                }
+
+                                //Непосредственно заполнение ListView
+                                ArrayAdapter adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, cocteilsMassive);
+                                cocteilsList.setAdapter(adapter);
                             }
                         });
                     }
