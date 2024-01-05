@@ -29,7 +29,28 @@ public class MainActivity extends AppCompatActivity {
     TextView titleTv, noInternetTv;
 
 
-    //Поток для получения данных с сервера
+    //Метод заполнения списка на основе данных json
+    private void loadCocteilsList(JSONArray cocteils){
+        //Инициализация массива для названий коктейлей
+        ArrayList<String> cocteilsMassive = new ArrayList<>();
+
+        //Заполнение массива для названий коктейлей
+        for (int i = 0; i < cocteils.length(); i++) {
+            try {
+                JSONObject cocteil = cocteils.getJSONObject(i);
+                cocteilsMassive.add(cocteil.getString("strDrink"));
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        //Непосредственно заполнение ListView
+        ArrayAdapter adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, cocteilsMassive);
+        cocteilsList.setAdapter(adapter);
+    }
+
+
+    //Поток для получения данных с сервера, заполнения списка коктейлей, предоставления более подробной информации о каждом из них
     Thread loadDataFromApi = new Thread(new Runnable() {
 
         @Override
@@ -65,22 +86,9 @@ public class MainActivity extends AppCompatActivity {
                         MainActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                //Инициализация массива для названий коктейлей
-                                ArrayList<String> cocteilsMassive = new ArrayList<>();
+                                //Заполнение списка
+                                loadCocteilsList(cocteils);
 
-                                //Заполнение массива для названий коктейлей
-                                for (int i = 0; i < cocteils.length(); i++) {
-                                    try {
-                                        JSONObject cocteil = cocteils.getJSONObject(i);
-                                        cocteilsMassive.add(cocteil.getString("strDrink"));
-                                    } catch (JSONException e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                }
-
-                                //Непосредственно заполнение ListView
-                                ArrayAdapter adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, cocteilsMassive);
-                                cocteilsList.setAdapter(adapter);
                             }
                         });
                     }
