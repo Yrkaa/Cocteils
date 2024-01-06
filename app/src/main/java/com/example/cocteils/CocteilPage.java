@@ -1,8 +1,12 @@
 package com.example.cocteils;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentContainerView;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.os.Bundle;
+import android.view.SurfaceControl;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -16,7 +20,7 @@ public class CocteilPage extends AppCompatActivity {
     //Создание переменных разметки
     ImageView cocteilImageIv;
     TextView cocteilNameTv, cocteilIdTv, noInternetTv;
-    ProgressBar progressBar;
+    ProgressBar progressBar2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +31,7 @@ public class CocteilPage extends AppCompatActivity {
         cocteilImageIv = findViewById(R.id.cocteil_image_iv);
         cocteilNameTv = findViewById(R.id.cocteil_name_tv);
         cocteilIdTv = findViewById(R.id.cocteil_id_tv);
-        progressBar = findViewById(R.id.progressBar2);
+        progressBar2 = findViewById(R.id.progressBar2);
 
         //Получаем данные из extra
         String[] cocteilData = loadExtraData();
@@ -38,7 +42,13 @@ public class CocteilPage extends AppCompatActivity {
         //Подгружаем картинку
         Picasso.get().load(cocteilData[1]).into(cocteilImageIv);
         //Скрываем прогресс бар, когда картинка загружена
-        progressBar.setVisibility(View.INVISIBLE);
+        progressBar2.setVisibility(View.INVISIBLE);
+
+        //Вставляем фрагмент с ингредиентами
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        Fragment ingredientsFragment = new IngredientsFragment(cocteilData[2]);
+        transaction.add(R.id.ingredients_fragment_view, ingredientsFragment, null);
+        transaction.commit();
     }
 
     //Метод для получения информации из extra
